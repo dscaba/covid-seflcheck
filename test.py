@@ -25,7 +25,7 @@ def main():
     if choice == "🏥 Centros de emergencia":
         st.write(hospitales())
     if choice == "📊 Gráfico de casos":
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True, sharing="streamlit")
     if choice == "🗺 Mapa de casos":
         mapa_casos()
     if choice == "☎ Teléfonos útiles":
@@ -55,10 +55,8 @@ for provincias in df.provincia:
 is_long = pd.Series(booleans)
 casos_nacion = df[is_long]
 df['fecha'] = pd.to_datetime(df['fecha'])
-fig = px.scatter_3d(casos_nacion, x='fecha', y='tot_casosconf', z='tot_fallecidos', color='tot_casosconf', title="Evolución casos COVID-19", width=1000, height=600,
-                    labels={  # replaces default labels by column name
-                        "fecha": "Fecha",  "tot_casosconf": "Total de casos confirmados", "tot_fallecidos": "Total de fallecidos"
-                    })
+fig = px.scatter_3d(casos_nacion, x='fecha', y='tot_casosconf', z='tot_fallecidos', color='tot_casosconf', title="Evolución casos COVID-19", width=1000, height=800,
+                    labels={"fecha": "Fecha",  "tot_casosconf": "Total de casos confirmados", "tot_fallecidos": "Total de fallecidos"})
 
 
 def home():
