@@ -68,6 +68,10 @@ def mapa_casos():
                                 'nombre', 'nombre_completo'])
     pcias = pcias.rename(columns={'centroide_lat': 'lat', 'centroide_lon': 'lon',
                                   'iso_nombre': 'provincia'})
+
+    pcias.iat[23,0] = -54.168200
+    pcias.iat[23,1] =  -67.743139
+
     pcias = pcias.sort_values(['provincia'], axis=0, ascending=True,
                               na_position='last', ignore_index=False, key=None)
     mapa_n = pd.merge(mapa, pcias)
