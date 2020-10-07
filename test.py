@@ -5,10 +5,18 @@ import plotly as pt
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import time
 # Config
+
 st.beta_set_page_config(page_title="COVID-19 SelfCheck",
                         page_icon="https://www.aso-apia.org/sites/default/files/field/image/coronavirus-4947717_1280_2.png", layout='wide', initial_sidebar_state='auto')
 # ----------------------
+
+geo = """
+    <div class="container-fluid mb-1">
+    <h2 style='font-family: Helvetica, Verdana, sans serif;font-size: 26px; border: 1px outset;border-radius: 10px 10px 10px 10px; text-align: center; color: white; background-color: black;'> Mapa de casos COVID-19 por provincia 🗺 </h2></div>
+    
+    """
 
 
 def main():
@@ -25,18 +33,66 @@ def main():
     if choice == "🏥 Centros de emergencia":
         st.write(hospitales())
     if choice == "📊 Gráfico de casos":
-        st.plotly_chart(fig, use_container_width=True, sharing="streamlit")
+        st.plotly_chart(fig, use_container_width=False, sharing="streamlit")
     if choice == "🗺 Mapa de casos":
+        st.markdown(geo, unsafe_allow_html=True)
         mapa_casos()
     if choice == "☎ Teléfonos útiles":
         st.write(telefonos())
 
 
 def mapa_casos():
-    mapa = """
-    <iframe src="https://covid19argentina.com/" width= "100%" height = "1000"></iframe> 
-    """
-    st.markdown(mapa, unsafe_allow_html=True)
+    mapa = pd.read_html(
+        "https://en.wikipedia.org/wiki/Template:COVID-19_pandemic_data/Argentina_medical_cases_by_province", header=0)[0]
+
+    MAPBOX_ACCESS_TOKEN = (
+        "pk.eyJ1IjoiZGVtNTAwIiwiYSI6ImNrZnk1ZWU1ejA4dXMyeW50cTF3cGlsMmMifQ.XZoeyQKxIZK__0QQ0g2pmA")
+
+    pcias = pd.read_csv(
+        "https://infra.datos.gob.ar/catalog/modernizacion/dataset/7/distribution/7.7/download/provincias.csv")
+
+    mapa = mapa.drop(mapa.index[[25, 26]])
+
+    mapa = mapa.drop('Region', axis=1)
+    mapa = mapa.drop(
+        columns=['Recov.[a][b]', 'Cases/100k[a][c]', 'Ref.'])
+    mapa = mapa.rename(columns={'Region.1': 'provincia',
+                                'Cases[a][b]': 'Casos', 'Deaths[a]': 'Fallecidos'})
+    mapa.iat[2, 0] = "Buenos Aires"
+    mapa.iat[1, 0] = "Ciudad Autónoma de Buenos Aires"
+    mapa.iat[23, 0] = "Tierra del Fuego"
+    mapa = mapa.drop([0, 0])
+    mapa = mapa.reset_index()
+
+    pcias = pcias.drop(columns=['categoria', 'fuente', 'id', 'iso_id',
+                                'nombre', 'nombre_completo'])
+    pcias = pcias.rename(columns={'centroide_lat': 'lat', 'centroide_lon': 'lon',
+                                  'iso_nombre': 'provincia'})
+    pcias = pcias.sort_values(['provincia'], axis=0, ascending=True,
+                              na_position='last', ignore_index=False, key=None)
+    mapa_n = pd.merge(mapa, pcias)
+    mapa_n['Casos'] = mapa_n.Casos.astype(int)
+
+    fig = px.scatter_mapbox(mapa_n, lat="lat", lon="lon", hover_name="provincia", hover_data=["Casos", "Fallecidos"], size="Casos", color="Casos",
+                            color_continuous_scale=px.colors.sequential.OrRd, zoom=3.8, height=800, width=800)
+
+    fig.update_layout(mapbox_style="dark",
+                      mapbox_accesstoken=MAPBOX_ACCESS_TOKEN)
+    fig.update_layout(
+        mapbox_layers=[
+            {
+                "below": 'traces',
+                "sourcetype": "raster",
+                "type": 'circle',
+                "circle": {
+                    'radius': 1200}
+
+            }
+        ])
+
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
 url = 'https://docs.google.com/spreadsheets/d/16-bnsDdmmgtSxdWbVMboIHo5FRuz76DBxsz_BbsEVWA/export?format=csv&id=16-bnsDdmmgtSxdWbVMboIHo5FRuz76DBxsz_BbsEVWA&gid=0'
@@ -55,8 +111,9 @@ for provincias in df.provincia:
 is_long = pd.Series(booleans)
 casos_nacion = df[is_long]
 df['fecha'] = pd.to_datetime(df['fecha'])
-fig = px.scatter_3d(casos_nacion, x='fecha', y='tot_casosconf', z='tot_fallecidos', color='tot_casosconf', title="Evolución casos COVID-19", width=1000, height=800,
-                    labels={"fecha": "Fecha",  "tot_casosconf": "Total de casos confirmados", "tot_fallecidos": "Total de fallecidos"})
+fig = px.scatter_3d(casos_nacion, x='fecha', y='tot_fallecidos', z='tot_casosconf', color='tot_casosconf', title="Evolución casos COVID-19", size_max=100000000,
+                    width=1000, height=800, labels={"fecha": "Fecha",  "tot_casosconf": "Total de casos confirmados", "tot_fallecidos": "Total de fallecidos"})
+fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
 
 def home():
@@ -154,10 +211,12 @@ def diagnostico():
     #   Criterios
 
     if chk_anosmia + chk_area + chk_contacto + chk_dolor_cabeza + chk_fiebre + chk_odinofagia + chk_personal + chk_resp + chk_tos + chk_vomitos + chk_diarrea >= 2 and chk_anosmia + chk_area + chk_contacto + chk_dolor_cabeza + chk_fiebre + chk_odinofagia + chk_personal + chk_resp + chk_tos + chk_vomitos + chk_diarrea < 12:
+        time.sleep(1)
         st.error(
             "☣ Usted presenta síntomas compatibles con la enfermedad COVID-19. Por favor consulte con su médico de inmediato.")
 
     if chk_anosmia + chk_area + chk_contacto + chk_dolor_cabeza + chk_fiebre + chk_odinofagia + chk_personal + chk_resp + chk_tos + chk_vomitos + chk_diarrea == 1:
+        time.sleep(1)
         st.success(
             "😄 Usted no presenta síntomas compatibles compatibles con la enfermedad COVID-19.")
 
