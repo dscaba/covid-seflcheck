@@ -33,7 +33,7 @@ def main():
     if choice == "🏥 Centros de emergencia":
         st.write(hospitales())
     if choice == "📊 Gráfico de casos":
-        st.plotly_chart(fig, use_container_width=False, sharing="streamlit")
+        st.plotly_chart(fig, use_container_width=True, sharing="streamlit")
     if choice == "🗺 Mapa de casos":
         st.markdown(geo, unsafe_allow_html=True)
         mapa_casos()
