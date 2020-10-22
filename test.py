@@ -51,7 +51,7 @@ def mapa_casos():
     pcias = pd.read_csv(
         "https://infra.datos.gob.ar/catalog/modernizacion/dataset/7/distribution/7.7/download/provincias.csv")
 
-    mapa = mapa.drop(mapa.index[[25, 26]])
+    #mapa = mapa.drop(mapa.index[[25, 26]])
 
     mapa = mapa.drop('Region', axis=1)
     mapa = mapa.drop(
