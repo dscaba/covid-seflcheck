@@ -77,24 +77,18 @@ def mapa_casos():
     mapa_n = pd.merge(mapa, pcias)
     mapa_n['Casos'] = mapa_n.Casos.astype(int)
 
-    fig = px.scatter_mapbox(mapa_n, lat="lat", lon="lon", hover_name="provincia", hover_data=["Casos", "Fallecidos"], size="Casos", color="Casos",
+    fig = px.scatter_mapbox(mapa_n, lat="lat", lon="lon", hover_name="provincia", hover_data=["Casos", "Fallecidos"], size="Casos", color="Casos",size_max=80,
                             color_continuous_scale=px.colors.sequential.OrRd, zoom=3.8, height=800, width=800)
 
     fig.update_layout(mapbox_style="dark",
-                      mapbox_accesstoken=MAPBOX_ACCESS_TOKEN)
-    fig.update_layout(
-        mapbox_layers=[
-            {
-                "below": 'traces',
-                "sourcetype": "raster",
-                "type": 'circle',
-                "circle": {
-                    'radius': 1200}
-
-            }
-        ])
-
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+                      mapbox_accesstoken=MAPBOX_ACCESS_TOKEN,
+                      mapbox_center={"lat": -40.101119, "lon": -66.029979},
+                      margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                      mapbox_layers=[{
+                          "below": 'traces',
+                          "sourcetype": "raster",
+                                        "type": 'circle'}
+                                     ])
 
     st.plotly_chart(fig, use_container_width=True)
 
