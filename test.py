@@ -8,7 +8,7 @@ import plotly.express as px
 import time
 # Config
 
-st.beta_set_page_config(page_title="COVID-19 SelfCheck",
+st.set_page_config(page_title="COVID-19 SelfCheck",
                         page_icon="https://www.aso-apia.org/sites/default/files/field/image/coronavirus-4947717_1280_2.png", layout='wide', initial_sidebar_state='auto')
 # ----------------------
 
