@@ -78,7 +78,7 @@ def mapa_casos():
     mapa_n['Casos'] = mapa_n.Casos.astype(int)
 
     fig = px.scatter_mapbox(mapa_n, lat="lat", lon="lon", hover_name="provincia", hover_data=["Casos", "Fallecidos"], size="Casos", color="Casos",size_max=80,
-                            color_continuous_scale=px.colors.sequential.OrRd, zoom=3.8, height=800, width=800)
+                            color_continuous_scale=px.colors.sequential.OrRd, zoom=3.5, height=800, width=800)
 
     fig.update_layout(mapbox_style="dark",
                       mapbox_accesstoken=MAPBOX_ACCESS_TOKEN,
