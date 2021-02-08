@@ -43,7 +43,12 @@ def main():
 
 def mapa_casos():
     mapa = pd.read_html(
+        "https://en.wikipedia.org/wiki/Template:COVID-19_pandemic_data/Argentina_medical_cases_by_province", header=0)[0]
+    if mapa.empty:
+        mapa = pd.read_html(
         "https://en.wikipedia.org/wiki/Template:COVID-19_pandemic_data/Argentina_medical_cases_by_province", header=0)[1]
+        pass
+
 
     MAPBOX_ACCESS_TOKEN = (
         "pk.eyJ1IjoiZGVtNTAwIiwiYSI6ImNrZnk1ZWU1ejA4dXMyeW50cTF3cGlsMmMifQ.XZoeyQKxIZK__0QQ0g2pmA")
